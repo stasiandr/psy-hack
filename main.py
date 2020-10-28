@@ -18,7 +18,9 @@ f.close()
 
 min_age = min([x[1][0] for x in DB])
 max_age = max([x[1][0] for x in DB])
-weights = [9, 10, 3, 3, 8, 2, 3, 0]
+weights = [8, 9, 7, 7, 10, 8, 6, 0]
+
+## old weights = [9, 10, 3, 3, 8, 2, 3, 0]
 
 for i, elem in enumerate(DB):
 	elem[1][0] = remap(elem[1][0], max_age, min_age, 1, 0)
@@ -46,3 +48,20 @@ for comb in DB_comb[:]:
 
 
 f.close()
+
+dups = []
+
+i = 0
+for comb in reversed(DB_comb):
+	if comb[0][0] not in dups and comb[1][0] not in dups:
+		row1 = next(x for x in Data if x[0] == comb[0][0])
+		row2 = next(x for x in Data if x[0] == comb[1][0])
+
+		print("\"" + str(row1[1]) + "\",\"" + str(row1[2]) + "\",\"" + str(row2[1]) + "\",\"" + str(row2[2]) + "\",\"" + str(dist(comb[0][1], comb[1][1])) + "\"")
+		dups.append(comb[0][0])
+		dups.append(comb[1][0])
+
+		i += 1
+
+	if i == 4:
+		break
