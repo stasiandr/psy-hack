@@ -1,0 +1,1 @@
+has_null	wave	gender	age	age_o	d_intelligence_o	intelligence	d_intelligence	shared_interests_partner	d_intelligence_partner	d_shared_interests_partner	interests_correlate	d_interests_correlate	like	guess_prob_liked	d_like	d_guess_prob_liked	met	decision	decision_o	match		

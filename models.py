@@ -1,4 +1,5 @@
 import random
+from extentions import remap
 
 class PersonAttribute:
 	rules = []
@@ -14,9 +15,9 @@ class PersonAttribute:
 		return answer / len(self.rules)
 
 	def sample(self):
-		return [random.choice(rule.keys()) for rule in self.rules]
+		return [random.choice(list(rule.keys())) for rule in self.rules]
 
-	def sampleValue(self, values):
+	def sampleValue(self):
 		return self.parse(self.sample())
 
 
@@ -39,7 +40,7 @@ class IQAttribute(PersonAttribute):
 
 
 	def sample(self):
-		request = [random.choice(self.rules.values())]
+		request = [random.choice(list(self.rules.keys()))]
 		request.append(random.randint(4, 6))
 		request.append(random.randint(4, 5))
 		request.append(random.randint(46, 48))
@@ -56,7 +57,7 @@ class ExtraversionAttribute(PersonAttribute):
 	def parse(self, values):
 		answer = 0.5
 		for elem in values:
-			answer += self.rules[elem]
+			answer += self.rules[0][elem]
 
 		return self.clip(answer, 0, 1)
 
@@ -66,7 +67,7 @@ class Person:
 	sex = PersonAttribute([{"Мужчина": 0, "Женщина": 1}])
 	education = PersonAttribute([{"Среднее" : 0, "Среднее профессиональное" : 0.25, "Неоконченное высшее" : 0.5, "Высшее": 0.75, "Несколько высших" : 1}])
 	iq = IQAttribute({"Отличник" : 1, "Хорошист" : 0.75, "По-разному получалось": 0.315})
-	extraversion = ExtraversionAttribute({"Полностью согласен" : 0.1, "Не согласен" : -0.1, "Затрудняюсь ответить" : 0})
+	extraversion = ExtraversionAttribute([{"Полностью согласен" : 0.1, "Не согласен" : -0.1, "Затрудняюсь ответить" : 0}])
 	altruistic = PersonAttribute([{"Сначала помогу другу, потом пойду на работу" : 1, "Объясню другу, что смогу помочь ему после работы" : 0}])
 	hobby = PersonAttribute([{"Активное времяпровождение (спорт, туризм, любительский театр и проч.)" : 1, "В равной степени увлекаюсь и тем, и другим" : 0.5, "Домашние хобби (коллекционирование, любительская фотография, чтение и проч.)" : 1}])
 	trust = PersonAttribute([
@@ -88,3 +89,38 @@ class Person:
 		answer.append(Person.trust.parse(values[14:17]))
 
 		return answer
+
+	@staticmethod
+	def sample():
+		answer = []
+
+		answer.append(random.random())
+		answer.append(Person.sex.sampleValue())
+		answer.append(Person.education.sampleValue())
+		answer.append(Person.iq.sampleValue())
+		answer.append(Person.extraversion.sampleValue())
+		answer.append(Person.altruistic.sampleValue())
+		answer.append(Person.hobby.sampleValue())
+		answer.append(Person.trust.sampleValue())
+
+		return answer
+
+	@staticmethod
+	def fromFile(filename):
+		DB = []
+
+		f = open(filename, encoding="utf-8")
+		for line in f.readlines():
+			data = line[1:-2].split('\",\"')
+			DB.append(Person.parse(data[3:]))
+		f.close()
+
+		min_age = min([x[0] for x in DB])
+		max_age = max([x[0] for x in DB])
+
+		for i, elem in enumerate(DB):
+			elem[0] = remap(elem[0], max_age, min_age, 1, 0)
+			DB[i] = elem
+
+		return DB
+
